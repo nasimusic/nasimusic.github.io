@@ -49,8 +49,8 @@
             </div>
           </div>
         </div>
+        <div class="tag">注：请先安装Chrome Nebulas-WebExtensionWallet钱包插件</div>
       </div>
-      <div class="tag">注：请先安装Chrome Nebulas-WebExtensionWallet钱包插件</div>
     </section>
   </div>
 </template>
