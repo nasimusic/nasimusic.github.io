@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>小借条</title>
+  </head>
+  <body>
+    <script src="lib/nebPay.js"></script>
+    <script src="lib/nebulas.js"></script>
+    <script>
+      var dappAddress = 'n1mJsz1F6ywwoVbYFkLQWHHgnPDUDcEXQSF',
+        nebulas = require('nebulas'),
+        Account = nebulas.Account;
+        neb = new nebulas.Neb();
+      neb.setRequest(new nebulas.HttpRequest('https://mainnet.nebulas.io'));
+
+      var NebPay = require('nebpay'),
+        nebPay = new NebPay();
+
+      var serialNumber;
+    </script>
+    <divsc id="app"></divsc>
+    <script src="dist/build.js"></script>
+  </body>
+</html>
