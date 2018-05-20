@@ -11,14 +11,15 @@
           <span>版权登记 Create copyright</span>
         </div>
         <div class="from">
-          <input type="text" placeholder="起一个音乐的名字吧" class="input_name">
-          <textarea placeholder="填写音乐备注"></textarea>
+          <input type="text" placeholder="起一个音乐的名字吧" class="input_name" v-model="addName">
+          <textarea placeholder="填写音乐备注" v-model="addDes"></textarea>
           <div class="md5update">
-            <span>点击上传音乐</span>
-            <img src="./assets/md5.png" width="59px">
-            <input type="file">
+            <span v-if="!uploaded">点击上传音乐</span>
+            <img v-if="!uploaded" src="./assets/md5.png" width="59px">
+            <input v-if="!uploaded" type="file" accept="audio/*" ref="musicFile" @change="uploadMusic">
+            <span class="uploaded" @click="reupload" v-if="uploaded">上传成功，点击重新上传</span>
           </div>
-          <button>开始登记</button>
+          <button @click="addFun">开始登记</button>
         </div>
       </div>
     </section>
@@ -29,57 +30,69 @@
           <span>查询版权  Query copyright</span>
         </div>
         <div class="from">
-          <input type="text" placeholder="请输入版权ID" class="input_name">
-          <button id="right_button">开始登记</button>
+          <input type="text" placeholder="请输入版权ID（测试：jheyk454）" class="input_name" v-model="findId">
+          <button id="right_button" @click="getFun">开始查询</button>
         </div>
-        <div class="result_wrap">
+        <div class="result_wrap" v-show="hasResult">
           <div>查询结果：</div>
           <div class="result_title">
             <span class="result_left_text">作者</span>
-            <span class="author_name result_right_text">王星云</span>
+            <span class="author_name result_right_text">{{nowAuthor}}</span>
           </div>
           <div class="result_content">
             <div class="result_content_id">
-              <span class="result_left_text">版权ID</span>
-              <span class="result_right_text">64352</span>
+              <span class="result_left_text">音乐MD5</span>
+              <span class="result_right_text">{{nowMd5}}</span>
             </div>
             <div class="result_content_des">
               <span class="result_left_text">音乐备注</span>
-              <span class="result_right_text result_content_des_content">原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx</span>
+              <span class="result_right_text result_content_des_content">{{nowDes}}</span>
             </div>
           </div>
         </div>
-        <div class="tag">注：请先安装Chrome Nebulas-WebExtensionWallet钱包插件</div>
+        <div class="tag">注：请先安装<a style="color: #62aec7" href="https://github.com/ChengOrangeJu/WebExtensionWalle" target="_blank">Chrome Nebulas-WebExtensionWallet</a>钱包插件</div>
       </div>
     </section>
   </div>
 </template>
 
 <script>
-
+import CryptoJS from 'crypto-js';
 
 export default {
   name: 'app',
   data () {
     return {
       addName: '',
-      addAmt: '',
       addDes: '',
+      addMd5: '',
+      uploaded: false,
       findId: '',
-      nowAmt: '',
-      nowId: '',
-      nowDes: '',
+      nowAuthor: '王星云',
+      nowMd5: '487f7b22f68312d2c1bbc93b1aea445b',
+      nowDes: '原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx',
       hasResult: false
     }
   },
   methods: {
+    uploadMusic() {
+      let music = this.$refs.musicFile.files[0]
+      this.addMd5 = ''
+      this.addMd5 = CryptoJS.MD5(music).toString()
+      this.uploaded = true
+    },
+    reupload() {
+      this.addMd5 = ''
+      this.uploaded = false
+    },
     addFun() {
-      if(this.addName == '' || this.addAmt == '' || this.addDes == '') {
+      if(this.addName == '' || this.addDes == '' || this.addMd5 == '') {
         alert('数据填写不完整')
       } else {
         let no = Number(Math.random().toString().substr(3,0) + Date.now()).toString(36)
-        let callArgs = '["' + no + '","' + this.addName + '","' + this.addDes + '","' + this.addAmt + '"]'
-        saveFun(callArgs,no);
+        let callArgs = '["' + no + '","' + this.addName + '","' + this.addDes + '","' + this.addMd5 + '"]'
+        console.log(callArgs)
+        saveFun(callArgs,no)
       }
     },
     getFun() {
@@ -142,9 +155,9 @@ function funcIntervalQuery(no) {
 function dealResult(resp, _this) {
   let result = JSON.parse(resp.result)
 
-  _this.nowId = result.no
+  _this.nowMd5 = result.md5
   _this.nowDes = result.des
-  _this.nowAmt = result.amt
+  _this.nowAuthor = result.borrower
 
   _this.hasResult = true
 }
@@ -283,6 +296,13 @@ html, body{
   cursor: pointer;
 }
 
+.uploaded {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  display: inline-block;
+}
+
 .from button {
   width: 100%;
   height: 46px;
@@ -357,7 +377,7 @@ html, body{
 }
 
 .author_name {
-  font-size: 22px;
+  font-size: 15px;
   font-weight: bold;
 }
 
