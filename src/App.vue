@@ -41,6 +41,10 @@
           </div>
           <div class="result_content">
             <div class="result_content_id">
+              <span class="result_left_text">音乐名</span>
+              <span class="result_right_text">{{nowName}}</span>
+            </div>
+            <div class="result_content_id" style="margin-top:20px;">
               <span class="result_left_text">音乐MD5</span>
               <span class="result_right_text">{{nowMd5}}</span>
             </div>
@@ -68,6 +72,7 @@ export default {
       addMd5: '',
       uploaded: false,
       findId: '',
+      nowName: '',
       nowAuthor: '王星云',
       nowMd5: '487f7b22f68312d2c1bbc93b1aea445b',
       nowDes: '原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx',
@@ -158,6 +163,7 @@ function dealResult(resp, _this) {
   _this.nowMd5 = result.md5
   _this.nowDes = result.des
   _this.nowAuthor = result.borrower
+  _this.nowName = result.name
 
   _this.hasResult = true
 }
@@ -336,7 +342,7 @@ html, body{
   width: 500px;
   float: left;
   margin-left: 100px;
-  margin-top: 230px;
+  margin-top: 246px;
   color: #777;
 }
 .query_content_title img {
@@ -410,6 +416,7 @@ html, body{
 .result_content_des_content {
   display: inline-block;
   width: 250px;
+  text-align: right;
 }
 
 .tag {
