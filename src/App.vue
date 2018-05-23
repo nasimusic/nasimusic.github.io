@@ -54,7 +54,7 @@
             </div>
           </div>
         </div>
-        <div class="tag">注：请先安装<a style="color: #62aec7" href="https://github.com/ChengOrangeJu/WebExtensionWalle" target="_blank">Chrome Nebulas-WebExtensionWallet</a>钱包插件</div>
+        <div class="tag">注：请先安装<a style="color: #62aec7" href="https://github.com/ChengOrangeJu/WebExtensionWallet" target="_blank">Chrome Nebulas-WebExtensionWallet</a>钱包插件</div>
       </div>
     </section>
   </div>
@@ -97,10 +97,10 @@ export default {
         let no = Number(Math.random().toString().substr(3,0) + Date.now()).toString(36)
         let callArgs = '["' + no + '","' + this.addName + '","' + this.addDes + '","' + this.addMd5 + '"]'
         console.log(callArgs)
-        saveFun(callArgs,no)
+        saveFun(callArgs,no,this)
       }
     },
-    getFun() {
+    getFun(callback) {
       if(this.findId == '') {
         alert('数据填写不完整')
       } else {
@@ -117,6 +117,7 @@ export default {
           };
         neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then( (resp) => {
           dealResult(resp, this)
+          callback()
         }).catch( (err) => {
           alert("error:" + err.message)
         })
@@ -125,7 +126,7 @@ export default {
   }
 }
 
-function saveFun(callArgs,no) {
+function saveFun(callArgs,no,_this) {
   let to = dappAddress,
     value = "0",
     callFunction = "save";
@@ -135,15 +136,16 @@ function saveFun(callArgs,no) {
   });
 
   window.intervalQuery = setInterval(function () {
-    funcIntervalQuery(no);
-  }, 1500);
+    funcIntervalQuery(no,_this);
+  }, 15000);
 }
 
 function cbPush(resp) {
   console.log("response of push: " + JSON.stringify(resp))
 }
 
-function funcIntervalQuery(no) {
+function funcIntervalQuery(no,_this) {
+  /*
   nebPay.queryPayInfo(window.serialNumber)
     .then(function (resp) {
       var respObject = JSON.parse(resp)
@@ -154,7 +156,13 @@ function funcIntervalQuery(no) {
     })
     .catch(function (err) {
       console.log(err);
-    });
+    });*/
+
+  _this.findId = no
+  _this.getFun(() => {
+    alert('添加成功，id为' + no + '，请您妥善保存')
+    clearInterval(window.intervalQuery)
+  })
 }
 
 function dealResult(resp, _this) {
