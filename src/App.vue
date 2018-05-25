@@ -19,7 +19,10 @@
             <input v-if="!uploaded" type="file" accept="audio/*" ref="musicFile" @change="uploadMusic">
             <span class="uploaded" @click="reupload" v-if="uploaded">上传成功，点击重新上传</span>
           </div>
-          <button @click="addFun">开始登记</button>
+          <button @click="addFun">
+            <span v-if="isOnload">正在上传，请稍等...</span>
+            <span v-else>开始登记</span>
+          </button>
         </div>
       </div>
     </section>
@@ -31,7 +34,7 @@
         </div>
         <div class="from">
           <input type="text" placeholder="请输入版权ID（测试：jheyk454）" class="input_name" v-model="findId">
-          <button id="right_button" @click="getFun">开始查询</button>
+          <button id="right_button" @click="getFun('get')">开始查询</button>
         </div>
         <div class="result_wrap" v-show="hasResult">
           <div>查询结果：</div>
@@ -76,7 +79,8 @@ export default {
       nowAuthor: '王星云',
       nowMd5: '487f7b22f68312d2c1bbc93b1aea445b',
       nowDes: '原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx',
-      hasResult: false
+      hasResult: false,
+      isOnload: false
     }
   },
   methods: {
@@ -96,11 +100,11 @@ export default {
       } else {
         let no = Number(Math.random().toString().substr(3,0) + Date.now()).toString(36)
         let callArgs = '["' + no + '","' + this.addName + '","' + this.addDes + '","' + this.addMd5 + '"]'
-        console.log(callArgs)
+        this.isOnload = true
         saveFun(callArgs,no,this)
       }
     },
-    getFun(callback) {
+    getFun(no,callback) {
       if(this.findId == '') {
         alert('数据填写不完整')
       } else {
@@ -115,11 +119,17 @@ export default {
             "function": callFunction,
             "args": callArgs
           };
+
         neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then( (resp) => {
           dealResult(resp, this)
-          callback()
-        }).catch( (err) => {
-          alert("error:" + err.message)
+          if(callback) {
+            callback()
+          }
+          if(no == 'get') {
+            if(resp.result == '' || resp.result == 'null' || resp.result == null) {
+              alert("error: id为'" + this.findId + "'的数据不存在，请检查是否填写错误，如果id填写正确，请稍等片刻查询")
+            }
+          }
         })
       }
     }
@@ -159,21 +169,25 @@ function funcIntervalQuery(no,_this) {
     });*/
 
   _this.findId = no
-  _this.getFun(() => {
-    alert('添加成功，id为' + no + '，请您妥善保存')
+  _this.getFun(no,() => {
+    alert('添加成功，id为' + no + '，请您妥善保存，如果查询不到，请稍等片刻再进行查询')
     clearInterval(window.intervalQuery)
+    _this.isOnload = false
   })
 }
 
 function dealResult(resp, _this) {
   let result = JSON.parse(resp.result)
+  if(result != null)  {
+    _this.nowMd5 = result.md5
+    _this.nowDes = result.des
+    _this.nowAuthor = result.borrower
+    _this.nowName = result.name
 
-  _this.nowMd5 = result.md5
-  _this.nowDes = result.des
-  _this.nowAuthor = result.borrower
-  _this.nowName = result.name
-
-  _this.hasResult = true
+    _this.hasResult = true
+  } else {
+    _this.hasResult = false
+  }
 }
 
 </script>
