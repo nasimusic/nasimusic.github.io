@@ -83,6 +83,9 @@ export default {
       isOnload: false
     }
   },
+  mounted() {
+    window._this = this;
+  },
   methods: {
     uploadMusic() {
       let music = this.$refs.musicFile.files[0]
@@ -127,7 +130,7 @@ export default {
           }
           if(no == 'get') {
             if(resp.result == '' || resp.result == 'null' || resp.result == null) {
-              alert("error: id为'" + this.findId + "'的数据不存在，请检查是否填写错误，如果id填写正确，请稍等片刻查询")
+              alert("error: id为'" + this.findId + "'的数据不存在，请检查是否填写错误")
             }
           }
         })
@@ -141,38 +144,29 @@ function saveFun(callArgs,no,_this) {
     value = "0",
     callFunction = "save";
 
+  window.no = no
   window.serialNumber = nebPay.call(to, value, callFunction, callArgs, {
     listener: cbPush
   });
 
-  window.intervalQuery = setInterval(function () {
-    funcIntervalQuery(no,_this);
-  }, 15000);
 }
 
 function cbPush(resp) {
-  console.log("response of push: " + JSON.stringify(resp))
+  window.intervalQuery = setInterval(function () {
+    funcIntervalQuery(resp);
+  }, 5000);
 }
 
-function funcIntervalQuery(no,_this) {
-  /*
-  nebPay.queryPayInfo(window.serialNumber)
-    .then(function (resp) {
-      var respObject = JSON.parse(resp)
-      if (respObject.code === 0) {
-        alert('添加成功,您的ID为'+ no);
-        clearInterval(window.intervalQuery)
-      }
-    })
-    .catch(function (err) {
-      console.log(err);
-    });*/
-
-  _this.findId = no
-  _this.getFun(no,() => {
-    alert('添加成功，id为' + no + '，请您妥善保存，如果查询不到，请稍等片刻再进行查询')
-    clearInterval(window.intervalQuery)
-    _this.isOnload = false
+function funcIntervalQuery(resp) {
+  window._this.$http.post('https://mainnet.nebulas.io/v1/user/getTransactionReceipt', {
+    hash: resp.txhash
+  }).then(res => {
+    if (res.data.result.status === 1) {
+      window._this.findId = window.no
+      alert('添加成功，id为' + window.no + '，请您妥善保存')
+      window._this.isOnload = false
+      clearInterval(window.intervalQuery)
+    }
   })
 }
 
