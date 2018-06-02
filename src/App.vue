@@ -1,22 +1,30 @@
 <template>
   <div id="app">
-    <div class="left_color"></div>
-    <section class="left_content">
+    <div class="left_color" v-if="!isHelp"></div>
+    <section class="left_content" v-if="!isHelp">
       <div>
         <img src="./assets/logo.png" width="169px">
-        <div style="margin-top:15px">致力于打造区块链音乐、配乐、音效版权确权服务</div>
-        <div>将您上传的音乐进行MD5，并且同时间戳一起登记到星云链上</div>
+        <div style="margin-top:15px">——您的版权确权管家</div>
+        <div>将您的版权证书及公证信息上链，并且同时间戳一起登记到星云链上。</div>
+        <div class="isHelptoggle" @click="isHelptoggle">使用教程&联系我们</div>
         <div class="add_content_title">
           <img src="./assets/add.png" width="28px">
           <span>版权登记 Create copyright</span>
         </div>
         <div class="from">
-          <input type="text" placeholder="起一个音乐的名字吧" class="input_name" v-model="addName">
-          <textarea placeholder="填写音乐备注" v-model="addDes"></textarea>
+          <input type="text" placeholder="填写版权的名字" class="input_name" v-model="addName">
+          <div class="input_kind_wrap" @click="choiceKind">
+            <input type="text" placeholder="选择版权类型" class="input_kind" v-model="addKind" readonly>
+            <span class="input_kind_span">点击选择 ></span>
+            <div class="choice_kind_wrap" v-if="choiceKindShow">
+              <span v-for="kindItem in choiceKindArr" @click.stop="choiceKindClick(kindItem)" :key="kindItem">{{kindItem}}</span>
+            </div>
+          </div>
+          <textarea placeholder="填写版权备注" v-model="addDes"></textarea>
           <div class="md5update">
-            <span v-if="!uploaded">点击上传音乐</span>
+            <span v-if="!uploaded">点击上传版权文件</span>
             <img v-if="!uploaded" src="./assets/md5.png" width="59px">
-            <input v-if="!uploaded" type="file" accept="audio/*" ref="musicFile" @change="uploadMusic">
+            <input v-if="!uploaded" type="file" accept="image/*" ref="musicFile" @change="uploadMusic">
             <span class="uploaded" @click="reupload" v-if="uploaded">上传成功，点击重新上传</span>
           </div>
           <button @click="addFun">
@@ -26,40 +34,66 @@
         </div>
       </div>
     </section>
-    <section class="right_content">
+    <section class="right_content" v-if="!isHelp">
       <div>
         <div class="query_content_title">
           <img src="./assets/query.png" width="26px">
           <span>查询版权  Query copyright</span>
         </div>
         <div class="from">
-          <input type="text" placeholder="请输入版权ID（测试：jheyk454）" class="input_name" v-model="findId">
+          <input type="text" placeholder="请输入版权ID（测试：jhxc5z95）" class="input_name" v-model="findId">
           <button id="right_button" @click="getFun('get')">开始查询</button>
         </div>
         <div class="result_wrap" v-show="hasResult">
           <div>查询结果：</div>
           <div class="result_title">
-            <span class="result_left_text">作者</span>
+            <span class="result_left_text">认证主体</span>
             <span class="author_name result_right_text">{{nowAuthor}}</span>
           </div>
           <div class="result_content">
             <div class="result_content_id">
-              <span class="result_left_text">音乐名</span>
+              <span class="result_left_text">版权ID</span>
               <span class="result_right_text">{{nowName}}</span>
             </div>
-            <div class="result_content_id" style="margin-top:20px;">
-              <span class="result_left_text">音乐MD5</span>
-              <span class="result_right_text">{{nowMd5}}</span>
-            </div>
             <div class="result_content_des">
-              <span class="result_left_text">音乐备注</span>
+              <span class="result_left_text">版权备注</span>
               <span class="result_right_text result_content_des_content">{{nowDes}}</span>
             </div>
+            <img :src="nowBase64">
           </div>
         </div>
         <div class="tag">注：请先安装<a style="color: #62aec7" href="https://github.com/ChengOrangeJu/WebExtensionWallet" target="_blank">Chrome Nebulas-WebExtensionWallet</a>钱包插件</div>
       </div>
     </section>
+
+    <div class="help_wrap" v-if="isHelp">
+      <section class="left_content">
+        <div>
+          <img src="./assets/logo.png" width="169px">
+          <div style="margin-top:15px">——您的版权确权管家</div>
+          <div>将您的版权证书及公证信息上链，并且同时间戳一起登记到星云链上。</div>
+          <div class="isHelptoggle" @click="isHelp = false">返回首页</div>
+          <div class="title">简介</div>
+          <div class="content">版权管家，致力于打造区块链美术作品版权登记、文字作品版权登记、音乐作品登记、摄影作品登记、工程作品登记、影视作品登记、软件著作权登记版权确权服务，是基于星云链开发的区块链项目。利用区块链技术不可篡改的特性，通过智能合约将原创作者的版权信息上链，仅需一分钟，您就能将您的版权文件在区块链上登记，版权文件不可篡改，由全网共同见证，并永久保存在星云链中。</div>
+          <div class="content">无论您的是在哪个版权中心进行的认证，公证信息上链后，我们保证公证结果的真实，并对公证结果加密，不会让公证结果被篡改致力于打造，一个公证的权威平台，对公证结果绝对真实，安全，可靠，防止篡改。</div>
+        </div>
+      </section>
+      <section class="right_content" id="helpright">
+        <div>
+          <div class="title">使用教程</div>
+          <div class="content">版权登记：填写说明</br>
+1、输入认证主体名称，可以为个人也可以为企业名称，但需要和版权文件名称一致； </br>
+2、上传版权文件一栏，您可以输入公证机关的出具的版权确权文件，JPG格式文件(例如：软件注册权证书等)。</div>
+          <div class="content">查询版权：所有已经上链的版权信息，都会生成一个查询ID，请记录好对应的ID，进行信息查询；（测试ID为：jhxc5z95）</div>
+          <div class="title">联系我们</div>
+          <div class="content">
+            使用及共创请联系</br>
+邮箱：1287150642@qq.com</br>
+QQ:1287150642
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -71,38 +105,65 @@ export default {
   data () {
     return {
       addName: '',
+      addKind: '',
       addDes: '',
       addMd5: '',
       uploaded: false,
       findId: '',
       nowName: '',
+      isHelp: false,
+      choiceKindShow: false,
       nowAuthor: '王星云',
+      nowBase64: '',
       nowMd5: '487f7b22f68312d2c1bbc93b1aea445b',
       nowDes: '原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx原创版权音乐，欢迎合作，合作加微信xxxxxxxxxxxxx',
       hasResult: false,
-      isOnload: false
+      isOnload: false,
+      choiceKindArr: ['美术作品版权登记', '文字作品版权登记', '音乐作品版权登记', '摄影作品版权登记', '工程作品版权登记', '影视作品版权登记', '软件著作权登记']
     }
   },
   mounted() {
     window._this = this;
   },
   methods: {
+    isHelptoggle() {
+      this.isHelp = true
+    },
+    choiceKind() {
+      this.choiceKindShow = true
+    },
+    choiceKindClick(i) {
+      this.addKind = i
+      this.choiceKindShow = false
+    },
     uploadMusic() {
       let music = this.$refs.musicFile.files[0]
-      this.addMd5 = ''
-      this.addMd5 = CryptoJS.MD5(music).toString()
-      this.uploaded = true
+      if(music.size / 1024 > 20) {
+        alert('抱歉当前最大支持图片为20k，建议去https://tinypng.com/上进行压缩')
+        return
+      } 
+      let fr = new FileReader()
+      fr.readAsDataURL(music);
+      fr.onload = (e) => {
+        let image = new Image()
+        image.src = e.target.result
+        image.onload = () => {
+          this.addMd5 = ''
+          this.addMd5 = image2Base64(image)
+          this.uploaded = true
+        }
+      }
     },
     reupload() {
       this.addMd5 = ''
       this.uploaded = false
     },
     addFun() {
-      if(this.addName == '' || this.addDes == '' || this.addMd5 == '') {
+      if(this.addName == '' || this.addDes == '' || this.addMd5 == '' || this.addKind == '') {
         alert('数据填写不完整')
       } else {
         let no = Number(Math.random().toString().substr(3,0) + Date.now()).toString(36)
-        let callArgs = '["' + no + '","' + this.addName + '","' + this.addDes + '","' + this.addMd5 + '"]'
+        let callArgs = '["' + no + '","' + this.addName + '","' + this.addKind + '","' + this.addDes + '","' + this.addMd5 + '"]'
         this.isOnload = true
         saveFun(callArgs,no,this)
       }
@@ -138,6 +199,16 @@ export default {
     }
   }
 }
+
+function image2Base64(img) {
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, img.width, img.height);
+    var dataURL = canvas.toDataURL("image/png");
+    return dataURL;
+} 
 
 function saveFun(callArgs,no,_this) {
   let to = dappAddress,
@@ -177,6 +248,7 @@ function dealResult(resp, _this) {
     _this.nowDes = result.des
     _this.nowAuthor = result.borrower
     _this.nowName = result.name
+    _this.nowBase64 = result.base64
 
     _this.hasResult = true
   } else {
@@ -261,16 +333,60 @@ html, body{
 }
 .from {
   width: 350px;
-  margin-top: 60px;
+  margin-top: 40px;
 }
 
 .input_name {
+  margin-top: 20px;
   width: 100%;
   height: 40px;
   outline: none;
   border: none;
   font-size: 14px;
   padding-left: 20px;
+}
+
+.input_kind_wrap {
+  margin-top: 20px;
+  width: 100%;
+  height: 40px;
+  font-size: 14px;
+  position: relative;
+}
+
+.input_kind {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  border: none;
+  font-size: 14px;
+  padding-left: 20px;
+  cursor: pointer;
+}
+
+.input_kind_span {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: #a7a7a7;
+  user-select: none;
+  cursor: pointer;
+}
+
+.choice_kind_wrap {
+  width: 100%;
+  height: 160px;
+  background-color: #fff;
+  box-shadow: 0px 0px 10px #616161;
+}
+
+.choice_kind_wrap span {
+  color: #7b7b7b;
+  margin-top: 15px;
+  margin-left: 40px;
+  display: inline-block;
+  user-select: none;
+  cursor: pointer;
 }
 
 .from textarea {
@@ -399,7 +515,7 @@ html, body{
 }
 
 .author_name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
 }
 
@@ -410,6 +526,7 @@ html, body{
   min-height: 130px;
   width: 414px;
   border-bottom: 1px solid #e0e0e0;
+  text-align: center;
 }
 
 .result_content_id:after {
@@ -435,8 +552,98 @@ html, body{
   text-align: right;
 }
 
+.result_content>img {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
 .tag {
   margin-top: 40px !important;
   font-size: 12px;
 }
+
+.isHelptoggle {
+  display: inline-block;
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 3px;
+  color: #616161;
+  padding: 5px 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.isHelptoggle:hover {
+  opacity: .7;
+}
+
+.help_wrap {
+  background-color: #10D2A2;
+  width: 100%;
+  min-height: 100%;
+  position: absolute;
+}
+
+.title {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.content {
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+#helpright>div {
+  margin-top: 140px;
+}
+
+@media screen and (max-width: 660px) {
+  #app {
+    min-width: 100%;
+  }
+  .left_color {
+    width: 100%;
+  }
+  .left_content {
+    width: 100%;
+    float: left;
+  }
+  .left_content>div {
+    width: 100%;
+    float: left;
+    margin-right: 0px;
+    margin-left: 0px;
+    padding: 20px;
+  }
+  .from {
+    width: 100%;
+  }
+  .right_content {
+    width: 100%;
+    float: left;
+  }
+  .right_content>div {
+    width: 100%;
+    margin-left: 0px;
+    margin-top: 30px;
+    padding: 20px;
+  }
+  .result_title {
+    width: 100%;
+  }
+  .result_content {
+    width: 100%;
+  }
+  .tag {
+    display: none;
+  }
+  #helpright>div {
+    margin-top: 20px;
+  }
+}
+
+
 </style>
